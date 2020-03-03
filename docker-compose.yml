@@ -1,0 +1,49 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./configs/nginx:/etc/nginx/conf.d
+    restart: unless-stopped
+    ports:
+      - 80:80
+    container_name: mses_nginx
+    links:
+      - auth
+      - data
+
+  auth:
+    image: node:latest
+    volumes:
+      - ./auth/src/:/usr/src/service/src
+      - ./auth/tsconfig.json:/usr/src/service/tsconfig.json
+      - ./auth/tslint.json:/usr/src/service/tslint.json
+      - ./auth/package.json:/usr/src/service/package.json
+      - ./auth/package-lock.json:/usr/src/service/package-lock.json
+    working_dir: /usr/src/service
+    command: bash -c "npm ci -q && npm start"
+    container_name: mses_auth
+
+  data:
+    image: node:latest
+    volumes:
+      - ./data/src/:/usr/src/service/src
+      - ./data/tsconfig.json:/usr/src/service/tsconfig.json
+      - ./data/tslint.json:/usr/src/service/tslint.json
+      - ./data/package.json:/usr/src/service/package.json
+      - ./data/package-lock.json:/usr/src/service/package-lock.json
+    working_dir: /usr/src/service
+    command: bash -c "npm ci -q && npm start"
+    container_name: mses_data
+
+  notifications:
+    image: node:latest
+    volumes:
+      - ./notifications/src/:/usr/src/service/src
+      - ./notifications/tsconfig.json:/usr/src/service/tsconfig.json
+      - ./notifications/tslint.json:/usr/src/service/tslint.json
+      - ./notifications/package.json:/usr/src/service/package.json
+      - ./notifications/package-lock.json:/usr/src/service/package-lock.json
+    working_dir: /usr/src/service
+    command: bash -c "npm ci -q && npm start"
+    container_name: mses_notifications
